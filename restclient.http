@@ -1,0 +1,7 @@
+### Get all incident tickets
+GET http://localhost:4004/ticket/Incidents
+
+### 
+POST http://localhost:4004/ticket/localhost:4004/ticket/Incidents/TicketService.approve
+
+{ "id" : ""}
