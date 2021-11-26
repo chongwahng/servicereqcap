@@ -1,3 +1,9 @@
+// Generic HTTP client approach provided by cloud SDK
+const { executeHttpRequest } = require("@sap-cloud-sdk/core");
+
+// Example - Use the following OData client to access cloud foundry workflow service 
+// const { WorkflowInstanceApi } = require("@sap/cloud-sdk-workflow-service-cf");
+
 module.exports = async function (srv) {
   const cds = require("@sap/cds");
 
@@ -101,14 +107,19 @@ module.exports = async function (srv) {
   });
 
   //-- Hook method after.READ
-  srv.after("READ", "Incidents", async (req) => {
+  srv.after("READ", "Incidents", async () => {
+    const getWFInstances = await executeHttpRequest(
+      { destinationName: "bpmworkflowruntime_test" },
+      { method: "get", url: "/rest/v1/workflow-instances" }
+    );
+
+    console.log(getWFInstances.data);
+
     //    const newIncidents = [];
     //    incidents.forEach((x) => {
     //      x.ticket_no = jobj.ticketno;
     //      newIncidents.push(x);
     //    });
-    console.log(req);
-
     //const q = SELECT `from Incidents { max(ticket_no) as ticketno }`
     //const r = await q
     //console.log(r)
