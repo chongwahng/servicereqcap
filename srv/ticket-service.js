@@ -114,7 +114,6 @@ module.exports = async function (srv) {
     );
 
     console.log(getWFInstances.data);
-
     //    const newIncidents = [];
     //    incidents.forEach((x) => {
     //      x.ticket_no = jobj.ticketno;
