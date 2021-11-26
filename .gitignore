@@ -28,5 +28,3 @@ mta_archives/
 # .vscode
 # .idea
 
-# added by cds deploy
-default-env.json
