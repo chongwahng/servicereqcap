@@ -1,7 +1,10 @@
 // Generic HTTP client approach provided by cloud SDK
+// Please maintain VCAP services in local default-env.json in order to access service API using this approach
+// VCAP services required are ==> XSUAA and Destination
 const { executeHttpRequest } = require("@sap-cloud-sdk/core");
 
-// Example - Use the following OData client to access cloud foundry workflow service 
+// Example - Use the following OData client to access cloud foundry workflow service
+//           this is a typed-script approach consuming service API
 // const { WorkflowInstanceApi } = require("@sap/cloud-sdk-workflow-service-cf");
 
 module.exports = async function (srv) {
@@ -25,9 +28,12 @@ module.exports = async function (srv) {
 
   //-- Hook method after.CREATE
   srv.after("CREATE", "Incidents", (req, msg) => {
-    getBearerToken((token) => {
-      createWorkflowInstance(token, msg.data);
-    });
+    // Remove this part and replace it with generic HTTP approach using SAP cloud SDK library tool
+    // user authentication and authorization details are all stored in DESTINATION
+    //    getBearerToken((token) => {
+    //      createWorkflowInstance(token, msg.data);
+    //    });
+    createWFInstUsingDest(msg.data);
   });
 
   //-- Hook method for UNBOUND ACTION ==> on.approve
@@ -107,13 +113,13 @@ module.exports = async function (srv) {
   });
 
   //-- Hook method after.READ
-  srv.after("READ", "Incidents", async () => {
-    const getWFInstances = await executeHttpRequest(
-      { destinationName: "bpmworkflowruntime_test" },
-      { method: "get", url: "/rest/v1/workflow-instances" }
-    );
-
-    console.log(getWFInstances.data);
+  //srv.after("READ", "Incidents", async () => {
+    //    const getWFInstances = await executeHttpRequest(
+    //      { destinationName: "bpmworkflowruntime_test" },
+    //      { method: "get", url: "/rest/v1/workflow-instances" }
+    //    );
+    //
+    //    console.log(getWFInstances.data);
     //    const newIncidents = [];
     //    incidents.forEach((x) => {
     //      x.ticket_no = jobj.ticketno;
@@ -122,13 +128,43 @@ module.exports = async function (srv) {
     //const q = SELECT `from Incidents { max(ticket_no) as ticketno }`
     //const r = await q
     //console.log(r)
-  });
+  //});
+};
+
+/* ============================================= */
+/* CREATE WF INSTANCE USING GENERIC HTTP CLIENT  */
+/* ============================================= */
+const createWFInstUsingDest = async (incident) => {
+  const payload = {
+    definitionId: "cng.com.approvalprocess",
+    context: {
+      IncidentUUID: incident.ID,
+      request: { id: incident.ID },
+      TicketNo: incident.ticket_no,
+      RaisedBy: incident.createdBy,
+      Description: incident.description,
+      Status: incident.status,
+      approvalStep: {
+        decision: "",
+      },
+      caller: "CAP",
+    },
+  };
+
+  const response = await executeHttpRequest(
+    {
+      destinationName: "bpmworkflowruntime_test",
+    },
+    { method: "POST", data: payload, url: "/rest/v1/workflow-instances" }
+  );
+
+  console.log(response.data);
 };
 
 /* ======================== */
 /* GET BEARER JWT TOKEN     */
 /* ======================== */
-const getBearerToken = (callback) => {
+/*const getBearerToken = (callback) => {
   const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
   const grantType = `grant_type=client_credentials`;
@@ -161,11 +197,11 @@ const getBearerToken = (callback) => {
   //sending request
   xhr.send(`${grantType}&${clientID}&${clientSecret}`);
 };
-
+*/
 /* ======================== */
 /* CREATE WORKFLOW INSTANCE */
 /* ======================== */
-const createWorkflowInstance = (token, incident) => {
+/*const createWorkflowInstance = (token, incident) => {
   const payload = {
     definitionId: "cng.com.approvalprocess",
     context: {
@@ -203,3 +239,4 @@ const createWorkflowInstance = (token, incident) => {
 
   xhr.send(JSON.stringify(payload));
 };
+*/

@@ -3,5 +3,12 @@
     "**/.gitignore": true,
     "**/.git": true,
     "**/.vscode": true
-  }
+},
+"sqltools.connections": [
+    {
+        "dialect": "SQLite",
+        "name": "Service Req SQLite3",
+        "database": "/home/user/projects/servicereqcap/servicereq.db"
+    }
+]
 }
